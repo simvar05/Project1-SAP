@@ -1,0 +1,51 @@
+CREATE DATABASE VersionControl;
+USE VersionControl;
+
+CREATE TABLE users(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE documents(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL UNIQUE,
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    lastVersionNum INT,
+    lastVersionId INT,
+    lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+    
+);
+
+CREATE TABLE versions(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    doc_id INT,
+    version_num INT,
+    content TEXT,
+    status VARCHAR(50) NOT NULL,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY(doc_id) REFERENCES documents(id),
+    FOREIGN KEY(created_by) REFERENCES users(id)
+);
+
+CREATE TABLE comments(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    version_id INT NOT NULL,
+    user_id INT NOT NULL,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY(version_id) REFERENCES versions(id),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+ALTER TABLE documents
+ADD CONSTRAINT fk_last_version
+FOREIGN KEY (lastVersionId)
+REFERENCES versions(id);
+
