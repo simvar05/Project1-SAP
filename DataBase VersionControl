@@ -13,7 +13,7 @@ CREATE TABLE documents(
     title VARCHAR(255) NOT NULL UNIQUE,
     created_by INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastVersionNum INT,
+    lastVersionNum INT,  // toi ne kaza li edno ot tezi (demek lastVersionNum ili lastVersionId)
     lastVersionId INT,
     lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (created_by) REFERENCES users(id)
@@ -26,7 +26,7 @@ CREATE TABLE versions(
     version_num INT,
     content TEXT,
     status VARCHAR(50) NOT NULL,
-    created_by INT,
+    created_by INT,       //ima li nujda ot dva pati da pisheme created_by kato mislq che trqbva da se otnasq za dokumenti
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY(doc_id) REFERENCES documents(id),
