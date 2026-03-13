@@ -60,6 +60,7 @@ public LocalTime getDate() {
     public String getEdit() {
         return edit;
 
+
     }
     public String toString() {
         return "ID: " + id + " Name: " + name + " Document: " + document + " Check AT: " + checkedAT + " Status: " + status;

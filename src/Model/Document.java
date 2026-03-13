@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 @Entity
 public class Document {
 
+
     @Id
     @GeneratedValue
     private Long id;
