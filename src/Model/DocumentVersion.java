@@ -1,14 +1,20 @@
 package Model;
 
 import Repo.Status_documentVer;
+import jakarta.persistence.*;
 import jdk.jshell.Snippet;
 import org.hibernate.engine.spi.Status;
 
 import java.time.LocalTime;
 
+@Entity
 public class DocumentVersion {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne
+    @JoinColumn(name = "document_id")
     private Document document;
     private int documentVersion;
     private LocalTime checkedAT;

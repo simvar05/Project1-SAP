@@ -6,7 +6,6 @@ import Model.DocumentVersion;
 import Model.User;
 import Repo.*;
 import jakarta.persistence.*;
-import jdk.internal.org.jline.utils.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static sun.security.provider.ML_DSA_Impls.version;
+
 
 @Service
 public class DocumentService {
@@ -153,10 +152,13 @@ public class DocumentService {
         }
      }
 
-     public User createUser(User user) throws RuntimeException {
-        if(user.getRoles()!= Role_User.READER){}
-     }
+    public Document getDocumentById(Long id){
 
+        return documentRepo.findById(id).orElse(null);
+    }
 
+    public List<Document> getDocuments(){
+        return documentRepo.findAll();
+    }
 
 }
