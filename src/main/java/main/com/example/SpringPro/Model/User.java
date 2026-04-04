@@ -1,19 +1,21 @@
-package Model;
+package main.com.example.SpringPro.Model;
 
-import Repo.Role_User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import main.com.example.SpringPro.Repo.Role_User;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name="users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name="role")
     private Role_User role;
+    @Column(name="username")
     private String username;
+    @Column(name="password")
     private String password;
 
     public User(Long id, Role_User role, String username, String password) {

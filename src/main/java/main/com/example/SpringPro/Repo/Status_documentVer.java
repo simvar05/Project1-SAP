@@ -1,4 +1,4 @@
-package Repo;
+package main.com.example.SpringPro.Repo;
 
 public enum Status_documentVer {
     IN_PROGRESS,

@@ -1,9 +1,7 @@
-package Model;
+package main.com.example.SpringPro.Model;
 
-import Repo.Status_documentVer;
+import main.com.example.SpringPro.Repo.Status_documentVer;
 import jakarta.persistence.*;
-import jdk.jshell.Snippet;
-import org.hibernate.engine.spi.Status;
 
 import java.time.LocalTime;
 

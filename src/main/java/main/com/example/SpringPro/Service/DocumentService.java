@@ -1,19 +1,16 @@
-package Service;
+package main.com.example.SpringPro.Service;
 
-import Model.Comment;
-import Model.Document;
-import Model.DocumentVersion;
-import Model.User;
-import Repo.*;
-import jakarta.persistence.*;
+import main.com.example.SpringPro.Model.Comment;
+import main.com.example.SpringPro.Model.Document;
+import main.com.example.SpringPro.Model.DocumentVersion;
+import main.com.example.SpringPro.Model.User;
+import main.com.example.SpringPro.Repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 
 @Service
@@ -34,12 +31,14 @@ public class DocumentService {
     }
 
 
-    public DocumentVersion createVersion(Long doc_id, String content) throws RuntimeException {
+    public DocumentVersion createVersion(Long doc_id, String content,User user) throws RuntimeException {
         Document dco = documentRepo.findById(doc_id).orElse(null);
+        DocumentVersion dcv= versionRepo.findTopByOrderByIdDesc();
+        Long newVersionNumber = (dcv != null) ? dcv.getId() + 1 : 1;
         if (dco == null) {
             throw new RuntimeException("Document not found");
         } else {
-            DocumentVersion version = new DocumentVersion(content, "Simeon Angelov", 304304L, dco, LocalTime.now(), Status_documentVer.APPROVED);
+            DocumentVersion version = new DocumentVersion(content, user.getUsername(), newVersionNumber , dco, LocalTime.now(), Status_documentVer.STILL);
             return versionRepo.save(version);
         }
     }
@@ -79,9 +78,9 @@ public class DocumentService {
     }
 
     public Comment addComment(Long user_id, String text, Long version_id) throws RuntimeException {
-        User user=userRepo.findById(user_id);
+        User user=userRepo.findById(user_id).orElse(null);
         DocumentVersion version=versionRepo.findById(version_id).orElse(null);
-        Comment previous_comment = commentRepo.findTopByOrderByIdDes();
+        Comment previous_comment = commentRepo.findTopByOrderByIdDesc();
         if (user.getRoles() == Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to add any comments");
         }
@@ -96,7 +95,7 @@ public class DocumentService {
     public DocumentVersion editDocument(Long user_id ,Long doc_id, String edit) throws RuntimeException {
 
            DocumentVersion version = versionRepo.findById(doc_id).orElse(null);
-           User user= userRepo.findById(user_id);
+           User user= userRepo.findById(user_id).orElse(null);
            if(version.getStatus() != Status_documentVer.IN_PROGRESS &&  user.getRoles()!=Role_User.AUTHOR){
                throw new RuntimeException("Document can be edited by the author and when it's in inspection");
            }
@@ -137,7 +136,7 @@ public class DocumentService {
 
      public void seeAllActiveVersions(Long user_id) throws RuntimeException {
 
-        User user=userRepo.findById(user_id);
+        User user=userRepo.findById(user_id).orElse(null);
         if(user.getRoles()!= Role_User.READER){
             throw new RuntimeException("You are not allowed to use this function!");
         }

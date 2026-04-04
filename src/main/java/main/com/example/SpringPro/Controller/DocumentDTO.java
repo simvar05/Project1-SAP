@@ -1,4 +1,4 @@
-package Controller;
+package main.com.example.SpringPro.Controller;
 
 public class DocumentDTO {
 

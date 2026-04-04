@@ -1,4 +1,4 @@
-package Model;
+package main.com.example.SpringPro.Model;
 
 import jakarta.persistence.*;
 
@@ -36,6 +36,9 @@ public class Document {
     }
     public void setName(String name) {
         this.name = name;
+    }
+    public Document() {
+
     }
 
 
