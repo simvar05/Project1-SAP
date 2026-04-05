@@ -31,9 +31,13 @@ public class DocumentService {
     }
 
 
-    public DocumentVersion createVersion(Long doc_id, String content,User user) throws RuntimeException {
+    public DocumentVersion createVersion(Long doc_id, String content,Long id) throws RuntimeException {
         Document dco = documentRepo.findById(doc_id).orElse(null);
         DocumentVersion dcv= versionRepo.findTopByOrderByIdDesc();
+        User user = userRepo.findById(id).orElse(null);
+        if(user==null){
+            throw new RuntimeException("User not found");
+        }
         Long newVersionNumber = (dcv != null) ? dcv.getId() + 1 : 1;
         if (dco == null) {
             throw new RuntimeException("Document not found");
@@ -43,19 +47,28 @@ public class DocumentService {
         }
     }
 
-    public void approvedVersion(User user, Long doc_id, String edit) throws RuntimeException {
+    public void approvedVersion(Long id, Long doc_id, String edit) throws RuntimeException {
 
 
+        User user = userRepo.findById(id).orElse(null);
+        if(user==null){
+            throw new RuntimeException("User not found");
+        }
         if (user.getRoles() == Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to approve this version");
         }
         DocumentVersion version = versionRepo.findById(doc_id).orElse(null);
-        if (version.getStatus() == Status_documentVer.WAITING) {
-            DocumentVersion newVersion = new DocumentVersion(edit, user.getUsername(), version.getId() + 1, version.getDocument(), LocalTime.now(), Status_documentVer.APPROVED);
-            versionRepo.save(version);
-        } else {
-            throw new RuntimeException("Document has already been approved");
+        if(version == null) {
+            throw new RuntimeException("Document not found");
         }
+        if (version.getStatus() != Status_documentVer.STILL) {
+            throw new RuntimeException("Document has already been approved");
+        } else {
+            DocumentVersion newVersion = new DocumentVersion(edit, user.getUsername(), version.getId() + 1, version.getDocument(), LocalTime.now(), Status_documentVer.APPROVED);
+            versionRepo.save(newVersion);
+
+        }
+
 
 
     }
@@ -151,13 +164,31 @@ public class DocumentService {
         }
      }
 
+     public User createUser(Long id,Role_User role, String username, String password) throws RuntimeException {
+        User user= new User(id,role,username,password);
+        return userRepo.save(user);
+     }
+
+     public User findUser(Long id)throws RuntimeException {
+        User user = userRepo.findById(id).orElse(null);
+        return user;
+     }
     public Document getDocumentById(Long id){
 
         return documentRepo.findById(id).orElse(null);
     }
 
+    public DocumentVersion getDocumentVersionById(Long id){
+        return versionRepo.findById(id).orElse(null);
+    }
+
+    public User  getUserById(Long id){
+        return userRepo.findById(id).orElse(null);
+    }
+
     public List<Document> getDocuments(){
         return documentRepo.findAll();
     }
+    public List<DocumentVersion> getDocumentVersions(){ return versionRepo.findAll();}
 
 }

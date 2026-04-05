@@ -2,13 +2,15 @@ package main.com.example.SpringPro.Controller;
 
 public class DocumentDTO {
 
-    private String name;
+    private Long id;
     private String content;
-    public DocumentDTO(String name, String content) {
+    public DocumentDTO(Long id, String content) {
 
-        this.name = name;
+        this.id=id;
         this.content = content;
 
 
     }
+
 }
+

@@ -14,4 +14,5 @@ public interface VersionRepo extends JpaRepository<DocumentVersion,Long> {
     DocumentVersion findByDocumentVersion(int documentVersion);
     List<DocumentVersion> findByStatus(Status_documentVer status);
     DocumentVersion findTopByOrderByIdDesc();
+
 }

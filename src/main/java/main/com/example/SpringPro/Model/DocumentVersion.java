@@ -16,10 +16,12 @@ public class DocumentVersion {
     private Document document;
     private int documentVersion;
     private LocalTime checkedAT;
+    @Enumerated(EnumType.STRING)
     Status_documentVer status;
     private String name;
     private String edit;
 
+     public DocumentVersion() {}
 
     public DocumentVersion(String edit,String name, Long id, Document document, LocalTime checkedAT, Status_documentVer status) {
 
