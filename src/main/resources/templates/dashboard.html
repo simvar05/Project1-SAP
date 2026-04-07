@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>Version Control</h2>
+        <p style="color:#94a3b8; font-size:13px; margin-top:5px;">
+            Document Management System
+        </p>
+
+        <a href="/dashboard" class="active">Dashboard</a>
+        <a href="/documents">Documents</a>
+    </div>
+
+    <div class="main">
+        <h1>Dashboard</h1>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Total Documents</h3>
+                <div class="value" th:text="${documentsCount}">0</div>
+            </div>
+
+            <div class="card">
+                <h3>Pending Approval</h3>
+                <div class="value" th:text="${pendingCount}">0</div>
+            </div>
+
+            <div class="card">
+                <h3>Approved</h3>
+                <div class="value" th:text="${approvedCount}">0</div>
+            </div>
+        </div>
+
+        <div class="table-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>Recent Documents</h2>
+                <a href="/documents/new" class="btn btn-primary">New Document</a>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Version</th>
+                        <th>Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="doc : ${documents}">
+                        <td th:text="${doc.title}"></td>
+                        <td>
+                            <span th:class="${doc.status == 'APPROVED'} ? 'badge badge-approved' : (${doc.status == 'PENDING'} ? 'badge badge-pending' : 'badge badge-rejected')"
+                                  th:text="${doc.status}">
+                            </span>
+                        </td>
+                        <td th:text="${doc.currentVersion}"></td>
+                        <td th:text="${doc.owner.username}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

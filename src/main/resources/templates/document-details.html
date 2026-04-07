@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Document Details</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+
+    <div class="sidebar">
+        <h2>DocSystem</h2>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/documents" class="active">Documents</a>
+    </div>
+
+    <div class="main">
+        <div class="card">
+            <h1 id="docTitle">Loading...</h1>
+            <p th:text="${document.description}"></p>
+
+            <div style="margin:20px 0;">
+                <span th:class="${document.status == 'APPROVED'} ? 'badge badge-approved' : (${document.status == 'PENDING'} ? 'badge badge-pending' : 'badge badge-rejected')"
+                      th:text="${document.status}"></span>
+            </div>
+
+            <p><strong>Current Version:</strong> <span th:text="${document.currentVersion}"></span></p>
+            <p><strong>Owner:</strong> <span th:text="${document.owner.username}"></span></p>
+
+            <div style="display:flex; gap:10px; margin-top:25px;">
+                <button class="btn btn-primary">Upload New Version</button>
+                <button class="btn btn-primary" onclick="approveDoc()">Approve</button>
+                <button class="btn btn-danger" onclick="rejectDoc()">Reject</button>
+            </div>
+        </div>
+
+        <div class="table-box" style="margin-top:30px;">
+            <h2>Version History</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Date</th>
+                        <th>Uploaded By</th>
+                    </tr>
+                </thead>
+                <tbody id="versionsTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const parts = window.location.pathname.split('/');
+    const docId = parts[2];
+
+    async function loadDocument() {
+        try {
+            const response = await fetch('/documents/' + docId);
+            const doc = await response.json();
+
+            document.getElementById('docTitle').innerText = doc.name;
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to load document");
+        }
+    }
+
+    async function loadVersions() {
+        try {
+            const response = await fetch('/versions/allVersions');
+            const versions = await response.json();
+
+            const table = document.getElementById('versionsTable');
+            table.innerHTML = '';
+
+            versions.forEach(v => {
+                if (v.document && v.document.id == docId) {
+                    table.innerHTML += `
+                        <tr>
+                            <td>${v.versionNumber ?? '-'}</td>
+                            <td>${v.createdAt ?? '-'}</td>
+                            <td>${v.user?.username ?? '-'}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to load versions");
+        }
+    }
+
+    async function approveDoc() {
+        try {
+            await fetch('/versions/approve/' + docId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userid: 1,
+                    document_id: Number(docId),
+                    edit: 'approved'
+                })
+            });
+
+            alert('Document approved');
+
+        } catch (err) {
+            console.error(err);
+            alert('Approve failed');
+        }
+    }
+
+    async function rejectDoc() {
+        try {
+            await fetch('/versions/decline/' + docId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userid: 1,
+                    document_id: Number(docId),
+                    edit: 'rejected'
+                })
+            });
+
+            alert('Document rejected');
+
+        } catch (err) {
+            console.error(err);
+            alert('Reject failed');
+        }
+    }
+
+    loadDocument();
+    loadVersions();
+</script>
+
+</body>
+</html>

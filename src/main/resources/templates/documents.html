@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Documents</title>
+    <link rel="stylesheet" href="/css/style.css" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="sidebar">
+        <h2>Version Control</h2>
+        <p style="color:#94a3b8; font-size:13px; margin-top:5px;">
+            Document Management System
+        </p>
+
+        <a href="/dashboard">Dashboard</a>
+        <a href="/documents" class="active">Documents</a>
+    </div>
+
+    <div class="main">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h1>Documents</h1>
+            <a href="/documents/new" class="btn btn-primary">New Document</a>
+        </div>
+
+        <div class="documents-grid" id="documentsContainer">
+        </div>
+
+    </div>
+</div>
+
+<script>
+    async function loadDocuments() {
+        try {
+            const response = await fetch('/documents/all');
+            const docs = await response.json();
+
+            const container = document.getElementById('documentsContainer');
+            container.innerHTML = '';
+
+            docs.forEach(doc => {
+                let statusClass = 'badge-rejected';
+
+                if (doc.status === 'APPROVED') {
+                    statusClass = 'badge-approved';
+                } else if (doc.status === 'PENDING') {
+                    statusClass = 'badge-pending';
+                }
+
+                container.innerHTML += `
+                    <div class="document-card">
+                        <div class="doc-header">
+                            <h2>${doc.name}</h2>
+                            <span class="badge ${statusClass}">
+                                ${doc.status ?? 'UNKNOWN'}
+                            </span>
+                        </div>
+
+                        <p class="doc-desc">
+                            ${doc.document_content ?? ''}
+                        </p>
+
+                        <div class="doc-info">
+                            <span>📄 ID: <b>${doc.id}</b></span>
+                        </div>
+
+                        <div class="doc-actions">
+                            <button class="btn btn-primary"
+                                    onclick="window.location.href='/documents/' + doc.id + '/view'">
+                                Open
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to load documents");
+        }
+    }
+
+    loadDocuments();
+</script>
+
+</body>
+</html>
