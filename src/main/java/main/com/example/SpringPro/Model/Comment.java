@@ -1,9 +1,6 @@
 package main.com.example.SpringPro.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalTime;
 
@@ -13,15 +10,17 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long version_id;
-    private Long User_id;
+    @ManyToOne
+    private DocumentVersion version;
+    @ManyToOne
+    private User user;
     private String comment;
     private LocalTime time;
 
-    public Comment(Long id, Long version_id, Long User_id, String comment, LocalTime time) {
+    public Comment(Long id, DocumentVersion version, User user, String comment, LocalTime time) {
         this.id = id;
-        this.version_id = version_id;
-        this.User_id = User_id;
+       this.version = version;
+       this.user = user;
         this.comment = comment;
         this.time = time;
 
@@ -31,4 +30,32 @@ public class Comment {
     public Long getId() {
         return id;
     }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public DocumentVersion getVersion() {
+        return version;
+    }
+    public void setVersion(DocumentVersion version) {
+        this.version = version;
+    }
+   public void setUser(User user) {
+        this.user = user;
+   }
+   public User getUser() {
+        return user;
+   }
+    public String getComment() {
+        return comment;
+    }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+        public  LocalTime getTime() {
+        return time;
+
+        }
+        public void setTime(LocalTime time) {
+        this.time = time;
+        }
 }

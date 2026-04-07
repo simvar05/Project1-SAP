@@ -1,5 +1,6 @@
 package main.com.example.SpringPro.Service;
 
+import jakarta.transaction.Transactional;
 import main.com.example.SpringPro.Model.Comment;
 import main.com.example.SpringPro.Model.Document;
 import main.com.example.SpringPro.Model.DocumentVersion;
@@ -54,7 +55,7 @@ public class DocumentService {
         if(user==null){
             throw new RuntimeException("User not found");
         }
-        if (user.getRoles() == Role_User.REVIEWER) {
+        if (user.getRoles() != Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to approve this version");
         }
         DocumentVersion version = versionRepo.findById(doc_id).orElse(null);
@@ -64,40 +65,60 @@ public class DocumentService {
         if (version.getStatus() != Status_documentVer.STILL) {
             throw new RuntimeException("Document has already been approved");
         } else {
-            DocumentVersion newVersion = new DocumentVersion(edit, user.getUsername(), version.getId() + 1, version.getDocument(), LocalTime.now(), Status_documentVer.APPROVED);
-            versionRepo.save(newVersion);
-
+            int nextDocumentVersion=version.getDocumentVersion()+1;
+            version.setDocumentVersion(nextDocumentVersion);
+            version.setStatus(Status_documentVer.APPROVED);
+            version.setCheckAT(LocalTime.now());
+            version.setEdit(edit);
+            version.setName(user.getUsername());
+            versionRepo.save(version);
         }
-
-
 
     }
 
 
-    public void declinedVersion(User user,Long doc_id,String edit) throws RuntimeException {
+    @Transactional
+    public void declinedVersion(Long id, String edit, Long doc_id) throws RuntimeException {
 
 
+        User user=userRepo.findById(id).orElse(null);
+        if(user==null){
+            throw new RuntimeException("User not found");
+        }
+        System.out.println("DEBUG: User " + user.getUsername() + " has role: [" + user.getRoles() + "]");
         if (user.getRoles() != Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to decline this version");
         }
         DocumentVersion version = versionRepo.findById(doc_id).orElse(null);
-        if (version.getStatus() == Status_documentVer.WAITING) {
-            DocumentVersion newVersion = new DocumentVersion(edit, user.getUsername(), version.getId() + 1, version.getDocument(), LocalTime.now(), Status_documentVer.REJECTED);
+        if (version.getStatus() == Status_documentVer.STILL) {
+            int nextDocumentVersion=version.getDocumentVersion()+1;
+            version.setDocumentVersion(nextDocumentVersion);
+            version.setEdit(edit);
+            version.setName(user.getUsername());
+            version.setCheckAT(LocalTime.now());
+            version.setStatus(Status_documentVer.REJECTED);
             versionRepo.save(version);
         } else {
-            throw new RuntimeException("Document has already been declined");
+            throw new RuntimeException("The Document is not waiting!");
         }
 
     }
 
-    public Comment addComment(Long user_id, String text, Long version_id) throws RuntimeException {
+    public Comment addComment(Long id,Long user_id, String text, Long version_id) throws RuntimeException {
         User user=userRepo.findById(user_id).orElse(null);
+        if(user==null){
+
+            throw new RuntimeException("User not found");
+        }
+
         DocumentVersion version=versionRepo.findById(version_id).orElse(null);
-        Comment previous_comment = commentRepo.findTopByOrderByIdDesc();
-        if (user.getRoles() == Role_User.REVIEWER) {
+        if(version==null){
+            throw new RuntimeException("Version not found");
+        }
+        if (user.getRoles() != Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to add any comments");
         }
-        Comment comment = new Comment(previous_comment.getId(),version.getId(),user.getId(),text,LocalTime.now());
+        Comment comment = new Comment(null,version,user,text,LocalTime.now());
         return commentRepo.save(comment);
 
     }
@@ -118,8 +139,16 @@ public class DocumentService {
 
 
 
-     public Document createDocument(User user, Long doc_id, String text, String name) throws RuntimeException {
+     public Document createDocument(Long id, Long doc_id, String text, String name) throws RuntimeException {
 
+         System.out.println("DEBUG: Търсим потребител с ID: " + id);
+         User user = userRepo.findById(id).orElse(null);
+         System.out.println("DEBUG: Намерен потребител: " + (user != null ? user.getUsername() : "НЕ Е НАМЕРЕН"));
+         System.out.println("DEBUG: Роля в Java обекта: " + (user != null ? user.getRoles() : "NULL"));
+
+         if(user==null){
+             throw new RuntimeException("User not found");
+         }
         if(user.getRoles()!= Role_User.AUTHOR){
             throw new RuntimeException("You are not allowed to create a document");
         }

@@ -23,18 +23,33 @@ public class DocumentVersion {
 
      public DocumentVersion() {}
 
-    public DocumentVersion(String edit,String name, Long id, Document document, LocalTime checkedAT, Status_documentVer status) {
+    public DocumentVersion(String edit,String name, Long id, Document document, LocalTime checkedAT, Status_documentVer status,int documentVersion) {
 
         this.name = name;
             this.id = id;
             this.document = document;
             this.checkedAT = checkedAT;
             this.status = status;
-            this.documentVersion = 1;
+            this.documentVersion = documentVersion;
+    }
+
+    public DocumentVersion(String edit,String name, Long id, Document document, LocalTime checkedAT, Status_documentVer status) {
+         this.name = name;
+         this.id = id;
+         this.document = document;
+         this.checkedAT = checkedAT;
+         this.status = status;
+         this.documentVersion = 1;
     }
 
     public void setDocument(Document document) {
         this.document = document;
+    }
+    public void setName(String name) {
+         this.name = name;
+    }
+    public void setEdit(String edit) {
+        this.edit = edit;
     }
     public void setDocumentVersion(int documentVersion) {
         this.documentVersion = documentVersion;
@@ -65,7 +80,6 @@ public LocalTime getDate() {
     }
     public String getEdit() {
         return edit;
-
 
     }
     public String toString() {

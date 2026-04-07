@@ -24,44 +24,10 @@ public class DocumentController {
     }
 
 
-    @PostMapping("/documents/create")
-    public DocumentVersion createVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
-       return documentService.createVersion(request.getDocument_id(), request.getDocument_content(), request.getUserid());
-    }
-
-@PostMapping("/documents/userCreate")
-public User createUser(@RequestBody User user) throws RuntimeException {
-       return documentService.createUser(user.getId(),user.getRoles(),user.getUsername(), user.getPassword());
-}
-
-@GetMapping("documents/userCreate/{id}")
-public User getUser(@PathVariable Long id,Model model) throws RuntimeException {
-       model.addAttribute("documents",documentService.getUserById(id));
-       return documentService.getUserById(id);
-}
-
-@PostMapping("/documents/appVersion/{id}")
-public String approveVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
-
-
-    System.out.println("DEBUG: Получено ID от Postman: " + request.getUserid());
-    System.out.println("DEBUG: Получен Edit от Postman: " + request.getEdit());
-      documentService.approvedVersion(request.getUserid(),request.getDocument_id(), request.getEdit());
-      return "New Version approved for document: " + request.getDocument_id();
-
-}
-
-@GetMapping("/document/allVersions")
-public List<DocumentVersion> getAllVersions() throws RuntimeException {
-
-       return documentService.getDocumentVersions();
-}
-
-
     @PostMapping("/documents/creates")
-    public Document createDocument(@RequestBody User user,Long id, String documentContent,String name) throws RuntimeException{
+    public Document createDocument(@RequestBody DocumentDTO docDto) throws RuntimeException{
 
-       return documentService.createDocument(user,id,name,documentContent);
+       return documentService.createDocument(docDto.getId(), docDto.getDoc_id(),docDto.getDocument_content(), docDto.getName());
     }
 
    @GetMapping("/documents/{id}")

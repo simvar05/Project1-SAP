@@ -5,17 +5,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ControllerAdvice
-    public class GlobalExceptionHandlerAdvice {
 
-        @ExceptionHandler(value=Exception.class)
-        public String handleException(RuntimeException ex, HttpServletRequest request, Model model) {
+        @ExceptionHandler(RuntimeException.class)
+        public String handleException(RuntimeException ex, Model model, HttpServletRequest request) {
 
-            model.addAttribute("message", ex.getMessage());
+            model.addAttribute("errorMessage", ex.getMessage());
             model.addAttribute("url", request.getRequestURL());
             return "error-page";
         }
     }
-}
+
