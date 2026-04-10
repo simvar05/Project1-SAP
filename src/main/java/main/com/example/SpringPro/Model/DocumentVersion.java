@@ -80,15 +80,20 @@ public LocalTime getDate() {
     }
     public String getEdit() {
         return edit;
-
     }
+
+    public String getName() {
+         return name;
+    }
+public LocalTime getCheckedAT() {
+         return checkedAT;
+}
+public Long getDocumentId(){
+         return document.getId();
+}
     public String toString() {
         return "ID: " + id + " Name: " + name + " Document: " + document + " Check AT: " + checkedAT + " Status: " + status;
     }
-
-
-
-
 
 
 

@@ -8,11 +8,12 @@ import java.util.List;
 
 @Repository
 public interface VersionRepo extends JpaRepository<DocumentVersion,Long> {
-    List<DocumentVersion> findByDocumentId(Long id);
 
+    DocumentVersion findByDocument_Id(Long documentId);
     List<DocumentVersion> findByName(String name);
-    DocumentVersion findByDocumentVersion(int documentVersion);
+    DocumentVersion findByDocumentVersion(Long documentVersion);
     List<DocumentVersion> findByStatus(Status_documentVer status);
     DocumentVersion findTopByOrderByIdDesc();
+
 
 }
