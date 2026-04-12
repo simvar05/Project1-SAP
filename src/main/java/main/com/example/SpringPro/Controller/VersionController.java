@@ -1,12 +1,17 @@
 package main.com.example.SpringPro.Controller;
 
+import jakarta.servlet.http.HttpSession;
+import main.com.example.SpringPro.Model.Document;
 import main.com.example.SpringPro.Model.DocumentVersion;
+import main.com.example.SpringPro.Model.User;
 import main.com.example.SpringPro.Service.DocumentService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller
 public class VersionController {
 
     DocumentService documentService;
@@ -23,12 +28,12 @@ public class VersionController {
         return documentService.getDocumentVersions();
     }
 
-    @PostMapping("/versions/create")
+    @PostMapping("/versions")
     public DocumentVersion createVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
         return documentService.createVersion(request.getDocument_id(), request.getDocument_content(), request.getUserid());
     }
 
-    @PostMapping("/versions/approve")
+    @PostMapping("/approve")
     public String approveVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
 
 
@@ -39,23 +44,23 @@ public class VersionController {
 
     }
 
-    @PostMapping("/versions/decline/{id}")
+    @PostMapping("/decline")
     public String declineVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
         documentService.declinedVersion(request.getUserid(), request.getEdit(),request.getDocument_id());
         return "New Version Declined for document: " + request.getDocument_id();
     }
 
-    @PostMapping("/versions/edit")
+    @PostMapping("/versionModify")
     public DocumentVersion modifyDocument( @RequestBody CombinedDocUserDTO request) throws RuntimeException {
        return documentService.editDocument(request.getUserid(), request.getDocument_id());
 
     }
-@GetMapping("/versions/allActive/{user_id}")
+@GetMapping("/versions/{user_id}")
     public List<DocumentVersion> getAllActiveVersions(@PathVariable Long user_id) throws RuntimeException {
 
         return documentService.seeAllActiveVersions(user_id);
 }
-@GetMapping("/versions/history/{user_id}/{div}")
+@GetMapping("/versions/{user_id}/{div}")
     public List<DocumentVersion> getHistory(@PathVariable Long user_id, @PathVariable Long div) throws RuntimeException {
 
         return documentService.historyOfDocumentVersion(user_id, div);
@@ -65,4 +70,25 @@ public class VersionController {
         return documentService.versionDone(request.getUserid(), request.getDocument_id());
 }
 
+    @PostMapping("/login")
+    public String login(@RequestParam String email,
+                        @RequestParam String password,
+                        HttpSession session,
+                        Model model) {
+
+        User user = documentService.loginUser(email, password);
+
+        if (user != null) {
+            if (user.getPassword().equals(password)) {
+                session.setAttribute("user", user);
+                return "redirect:/documents";
+            }
+        }
+
+        model.addAttribute("error", "Грешен имейл или парола!");
+        return "login";
+    }
+
 }
+
+

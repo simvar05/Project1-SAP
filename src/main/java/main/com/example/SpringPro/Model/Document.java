@@ -1,7 +1,10 @@
 package main.com.example.SpringPro.Model;
 
 import jakarta.persistence.*;
+import main.com.example.SpringPro.Repo.Status_documentVer;
 
+import javax.print.DocFlavor;
+import java.util.List;
 
 
 @Entity
@@ -13,6 +16,8 @@ public class Document {
     private Long id;
     private String documentContent;
     private String name;
+    @OneToMany(mappedBy = "document")
+    private List<DocumentVersion> versions;
 
     public Document(Long id, String documentContent, String name) {
         this.id = id;
@@ -37,6 +42,28 @@ public class Document {
     public void setName(String name) {
         this.name = name;
     }
+    public String getStatus(){
+
+        if(versions.isEmpty()){
+                return "No versions";
+        }
+        return versions.get(versions.size()-1).getStatus().toString();
+    }
+    public String getUsername(){
+        if(versions.isEmpty()){
+            return "No versions";
+        }
+        return versions.get(versions.size()-1).getName();
+    }
+
+    public String getVersion() {
+        if(versions.isEmpty()){
+            return "No versions";
+        }
+        return String.valueOf(versions.get(versions.size()-1).getDocumentVersion());
+    }
+
+
     public Document() {
 
     }

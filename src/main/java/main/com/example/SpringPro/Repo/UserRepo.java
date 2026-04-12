@@ -12,4 +12,5 @@ public interface UserRepo extends JpaRepository<User,Long>{
     List<User> findAllByIdAndRole(Long user_id, Role_User role);
     User findTopByOrderByIdDesc();
     User findById(long id);
+    User findByUsername(String username);
 }

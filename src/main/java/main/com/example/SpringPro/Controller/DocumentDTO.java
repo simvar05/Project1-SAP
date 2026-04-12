@@ -4,20 +4,20 @@ import main.com.example.SpringPro.Model.User;
 
 public class DocumentDTO {
 
-    private Long id;
+    private Long userid;
     private Long doc_id;
     private String document_content;
     private String name;
-    public DocumentDTO(Long id, Long doc_id, String content, String name) {
+    public DocumentDTO(Long userid, Long doc_id, String content, String name) {
 
-        this.id = id;
+        this.userid = userid;
         this.doc_id=doc_id;
         this.document_content = content;
         this.name = name;
 
     }
     public void setId(Long id) {
-        this.id = id;
+        this.userid = id;
     }
     public void setDocument_content(String document_content) {
         this.document_content = document_content;
@@ -26,7 +26,7 @@ public class DocumentDTO {
         this.name = name;
     }
     public Long getId() {
-        return id;
+        return userid;
     }
     public String getDocument_content() {
         return document_content;

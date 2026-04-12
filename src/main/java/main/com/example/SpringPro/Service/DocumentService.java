@@ -16,6 +16,7 @@ import java.util.List;
 
 
 @Service
+@Transactional
 public class DocumentService {
 
 
@@ -156,10 +157,10 @@ public class DocumentService {
 
 
 
-     public Document createDocument(Long id, Long doc_id, String text, String name) throws RuntimeException {
+     public Document createDocument(Long user_id, String text, String name) throws RuntimeException {
 
-         System.out.println("DEBUG: Търсим потребител с ID: " + id);
-         User user = userRepo.findById(id).orElse(null);
+         System.out.println("DEBUG: Търсим потребител с ID: " + user_id);
+         User user = userRepo.findById(user_id).orElse(null);
          System.out.println("DEBUG: Намерен потребител: " + (user != null ? user.getUsername() : "НЕ Е НАМЕРЕН"));
          System.out.println("DEBUG: Роля в Java обекта: " + (user != null ? user.getRoles() : "NULL"));
 
@@ -169,7 +170,7 @@ public class DocumentService {
         if(user.getRoles()!= Role_User.AUTHOR){
             throw new RuntimeException("You are not allowed to create a document");
         }
-        Document dco= new Document(doc_id, text, name);
+        Document dco= new Document(null, text, name);
         return documentRepo.save(dco);
      }
 
@@ -263,6 +264,16 @@ public class DocumentService {
     }
     public List<DocumentVersion> getDocumentVersions(){
         return versionRepo.findAll();
+    }
+
+    public User loginUser(String username,String password) throws RuntimeException {
+
+        User user = userRepo.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+       return user;
+
     }
 
 }

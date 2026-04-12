@@ -49,14 +49,13 @@
                         <label>Status</label>
                         <select name="status">
                             <option value="DRAFT">Draft</option>
-                            <option value="PENDING">Pending Review</option>
                         </select>
                     </div>
 
                 </div>
 
                 <div style="display:flex; gap:15px; margin-top:30px;">
-                    <button type="submit" class="btn btn-primary">
+                    <button  th:if="${session.user != null}" type="submit" class="btn btn-primary">
                         Create Document
                     </button>
 
@@ -76,14 +75,13 @@
         e.preventDefault();
 
         const data = {
-            id: 1,
-            doc_id: Date.now(),
+
             document_content: document.querySelector('[name="content"]').value,
             name: document.querySelector('[name="title"]').value
         };
 
         try {
-            const response = await fetch('/documents/creates', {
+            const response = await fetch('/documents', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

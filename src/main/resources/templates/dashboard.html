@@ -54,14 +54,14 @@
                 </thead>
                 <tbody>
                     <tr th:each="doc : ${documents}">
-                        <td th:text="${doc.title}"></td>
+                        <td th:text="${doc.name}"></td>
                         <td>
                             <span th:class="${doc.status == 'APPROVED'} ? 'badge badge-approved' : (${doc.status == 'PENDING'} ? 'badge badge-pending' : 'badge badge-rejected')"
                                   th:text="${doc.status}">
                             </span>
                         </td>
-                        <td th:text="${doc.currentVersion}"></td>
-                        <td th:text="${doc.owner.username}"></td>
+                        <td th:text="${doc.version}">
+                        <td th:text="${doc.username}"></td>
                     </tr>
                 </tbody>
             </table>

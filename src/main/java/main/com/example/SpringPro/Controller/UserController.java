@@ -16,17 +16,17 @@ public class UserController {
         this.documentService = documentService;
     }
 
-    @PostMapping("/users/userCreate")
+    @PostMapping("/users")
     public User createUser(@RequestBody User user) throws RuntimeException {
         return documentService.createUser(user.getId(),user.getRoles(),user.getUsername(), user.getPassword());
     }
-    @GetMapping("users/userCreate/{id}")
+    @GetMapping("users/{id}")
     public User getUser(@PathVariable Long id, Model model) throws RuntimeException {
         model.addAttribute("users",documentService.getUserById(id));
         return documentService.getUserById(id);
     }
 
-    @PostMapping("/users/comment/{id}")
+    @PostMapping("/comments/{id}")
     public Comment createComment(@PathVariable Long id,@RequestBody CommentDTO comment) throws RuntimeException {
         return documentService.addComment(id,comment.getUserid(),comment.getText(),comment.getVersionid());
     }

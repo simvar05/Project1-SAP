@@ -1,7 +1,10 @@
 package main.com.example.SpringPro.Controller;
 
+import jakarta.servlet.http.HttpSession;
 import main.com.example.SpringPro.Service.DocumentService;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import main.com.example.SpringPro.Model.User;
@@ -12,37 +15,37 @@ import main.com.example.SpringPro.Repo.*;
 import java.util.List;
 
 
-@RestController
+@Controller
 public class DocumentController {
 
-   private final DocumentService documentService;
+    private final DocumentService documentService;
 
-   @Autowired
-   public DocumentController(DocumentService documentService) {
+    @Autowired
+    public DocumentController(DocumentService documentService) {
         this.documentService = documentService;
 
     }
 
 
-    @PostMapping("/documents/creates")
-    public Document createDocument(@RequestBody DocumentDTO docDto) throws RuntimeException{
+    @PostMapping("/documents")
+    public String createDocument(@RequestBody DocumentDTO docDto, HttpSession session) {
 
-       return documentService.createDocument(docDto.getId(), docDto.getDoc_id(),docDto.getDocument_content(), docDto.getName());
+        User loggedUser = (User) session.getAttribute("user");
+
+        if (loggedUser == null) {
+            return "redirect:/login";
+        }
+
+
+            Document newDoc = documentService.createDocument(
+                    loggedUser.getId(),
+                    docDto.getDocument_content(),
+                    docDto.getName()
+            );
+
+        return "redirect:/dashboard";
+
     }
-
-   @GetMapping("/documents/{id}")
-    public Document getDocument(@PathVariable Long id,Model model){
-
-       model.addAttribute("document", documentService.getDocumentById(id));
-       return documentService.getDocumentById(id);
-   }
-
-   @GetMapping("/documents/all")
-    public List<Document> getDocuments(Model model){
-       model.addAttribute("document", documentService.getDocuments());
-       return documentService.getDocuments();
-   }
-
 
 
 }
