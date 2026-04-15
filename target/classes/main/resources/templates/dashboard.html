@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>Version Control</h2>
+        <p style="color:#94a3b8; font-size:13px; margin-top:5px;">
+            Document Management System
+        </p>
+
+        <a href="/dashboard" class="active">Dashboard</a>
+        <a href="/documents">Documents</a>
+        <div id="authButtons"
+             style="margin-top:auto;padding-top:20px;border-top:1px solid #334155;">
+        </div>
+    </div>
+
+    <div class="main">
+        <h1>Dashboard</h1>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Total Documents</h3>
+                <div class="value" th:text="${documentsCount}">0</div>
+            </div>
+
+            <div class="card">
+                <h3>Pending Approval</h3>
+                <div class="value" th:text="${pendingCount}">0</div>
+            </div>
+
+            <div class="card">
+                <h3>Approved</h3>
+                <div class="value" th:text="${approvedCount}">0</div>
+            </div>
+        </div>
+
+        <div class="table-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>Recent Documents</h2>
+                <a href="/documents/new" class="btn btn-primary">New Document</a>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Version</th>
+                        <th>Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="doc : ${documents}">
+                        <td th:text="${doc.name}"></td>
+                        <td>
+                            <span th:class="${doc.status == 'APPROVED'} ? 'badge badge-approved' : (${doc.status == 'PENDING'} ? 'badge badge-pending' : 'badge badge-rejected')"
+                                  th:text="${doc.status}">
+                            </span>
+                        </td>
+                        <td th:text="${doc.version}">
+                        <td th:text="${doc.username}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+    const authButtons = document.getElementById('authButtons');
+
+    if (loggedUser) {
+        authButtons.innerHTML = `
+            <div style="margin-bottom:12px;color:#94a3b8;">
+                Logged as <strong>${loggedUser.username}</strong>
+            </div>
+            <button class="btn" onclick="logout()">Log Out</button>
+        `;
+    } else {
+        authButtons.innerHTML = `
+            <a class="btn" href="/login">Log In</a>
+            <a class="btn" href="/register" style="margin-top:10px;display:block;">Sign Up</a>
+        `;
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedUser');
+        window.location.href = '/login';
+    }
+</script>
+</body>
+</html>

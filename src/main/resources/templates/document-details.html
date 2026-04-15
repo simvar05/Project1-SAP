@@ -11,6 +11,9 @@
         <h2>DocSystem</h2>
         <a href="/dashboard">Dashboard</a>
         <a href="/documents" class="active">Documents</a>
+        <div id="authButtons"
+             style="margin-top:auto;padding-top:20px;border-top:1px solid #334155;">
+        </div>
     </div>
 
     <div class="main">
@@ -25,6 +28,14 @@
 
             <p><strong>Current Version:</strong> <span th:text="${document.currentVersion}"></span></p>
             <p><strong>Owner:</strong> <span th:text="${document.owner.username}"></span></p>
+
+            <div class="card" style="margin-top:30px;">
+                <h2>Comments</h2>
+
+                <div id="commentsList" style="margin-bottom:20px;"></div>
+
+                <div id="commentFormContainer"></div>
+            </div>
 
             <div style="display:flex; gap:10px; margin-top:25px;">
                 <button class="btn btn-primary">Upload New Version</button>
@@ -139,6 +150,89 @@
 
     loadDocument();
     loadVersions();
+
+
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+    const authButtons = document.getElementById('authButtons');
+
+    if (loggedUser) {
+        authButtons.innerHTML = `
+            <div style="margin-bottom:12px;color:#94a3b8;">
+                Logged as <strong>${loggedUser.username}</strong>
+            </div>
+            <button class="btn" onclick="logout()">Log Out</button>
+        `;
+    } else {
+        authButtons.innerHTML = `
+            <a class="btn" href="/login">Log In</a>
+            <a class="btn" href="/register" style="margin-top:10px;display:block;">Sign Up</a>
+        `;
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedUser');
+        window.location.href = '/login';
+    }
+
+
+    async function loadComments(documentId) {
+    const response = await fetch(`/documents/${documentId}/comments`);
+
+    if (!response.ok) return;
+
+    const comments = await response.json();
+    const list = document.getElementById('commentsList');
+
+    if (comments.length === 0) {
+        list.innerHTML = '<p style="color:#94a3b8;">No comments yet.</p>';
+        return;
+    }
+
+    list.innerHTML = comments.map(c => `
+        <div class="table-box" style="margin-bottom:12px; padding:16px;">
+            <strong>${c.username ?? 'User'}</strong>
+            <p style="margin-top:10px;">${c.comment}</p>
+        </div>
+    `).join('');
+}
+
+function renderCommentForm(documentId) {
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+    const container = document.getElementById('commentFormContainer');
+
+    if (!loggedUser) {
+        container.innerHTML = '<p style="color:#94a3b8;">Log in to write a comment.</p>';
+        return;
+    }
+
+    container.innerHTML = `
+        <textarea id="commentInput" rows="4" style="width:100%;margin-bottom:12px;"></textarea>
+        <button class="btn btn-primary" onclick="submitComment(${documentId})">Post Comment</button>
+    `;
+}
+
+async function submitComment(documentId) {
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+
+    const response = await fetch(`/documents/${documentId}/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userId: loggedUser.id,
+            comment: document.getElementById('commentInput').value
+        })
+    });
+
+    if (!response.ok) {
+        alert('Failed to add comment');
+        return;
+    }
+
+    document.getElementById('commentInput').value = '';
+    loadComments(documentId);
+}
 </script>
 
 </body>

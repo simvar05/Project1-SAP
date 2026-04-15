@@ -16,6 +16,9 @@
 
         <a href="/dashboard">Dashboard</a>
         <a href="/documents" class="active">Documents</a>
+        <div id="authButtons"
+             style="margin-top:auto;padding-top:20px;border-top:1px solid #334155;">
+        </div>
     </div>
 
     <div class="main">
@@ -83,7 +86,29 @@
     }
 
     loadDocuments();
-</script>
 
+
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+    const authButtons = document.getElementById('authButtons');
+
+    if (loggedUser) {
+        authButtons.innerHTML = `
+            <div style="margin-bottom:12px;color:#94a3b8;">
+                Logged as <strong>${loggedUser.username}</strong>
+            </div>
+            <button class="btn" onclick="logout()">Log Out</button>
+        `;
+    } else {
+        authButtons.innerHTML = `
+            <a class="btn" href="/login">Log In</a>
+            <a class="btn" href="/register" style="margin-top:10px;display:block;">Sign Up</a>
+        `;
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedUser');
+        window.location.href = '/login';
+    }
+</script>
 </body>
 </html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Create Document</title>
+    <link rel="stylesheet" href="/css/style.css" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>Version Control</h2>
+        <p style="color:#94a3b8; font-size:13px; margin-top:5px;">
+            Document Management System
+        </p>
+
+        <a href="/dashboard">Dashboard</a>
+        <a href="/documents" class="active">Documents</a>
+        <div id="authButtons"
+             style="margin-top:auto;padding-top:20px;border-top:1px solid #334155;">
+        </div>
+    </div>
+
+    <div class="main">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h1>Create Document</h1>
+            <a href="/documents" class="btn">← Back</a>
+        </div>
+
+        <div class="form-card">
+            <form onsubmit="createDoc(event)">
+
+                <div class="form-group">
+                    <label>Document Title</label>
+                    <input type="text" name="title" placeholder="Enter document title..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="Enter document description..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Initial Content</label>
+                    <textarea name="content" class="large-textarea"
+                              placeholder="Write the document content here..."></textarea>
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="DRAFT">Draft</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div style="display:flex; gap:15px; margin-top:30px;">
+                    <button  th:if="${session.user != null}" type="submit" class="btn btn-primary">
+                        Create Document
+                    </button>
+
+                    <a href="/documents" class="btn btn-danger">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    async function createDoc(e){
+        e.preventDefault();
+
+        const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+
+        if (!loggedUser) {
+            alert('You must be logged in');
+            window.location.href = '/login';
+            return;
+        }
+
+        const data = {
+            id: loggedUser.id,
+            doc_id: Date.now(),
+            name: document.getElementById('title').value,
+            document_content: document.getElementById('content').value
+        };
+
+        try {
+            const response = await fetch('/documents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to create document");
+            }
+
+            alert("Document created successfully!");
+            window.location.href = "/documents";
+
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+    const authButtons = document.getElementById('authButtons');
+
+    if (loggedUser) {
+        authButtons.innerHTML = `
+            <div style="margin-bottom:12px;color:#94a3b8;">
+                Logged as <strong>${loggedUser.username}</strong>
+            </div>
+            <button class="btn" onclick="logout()">Log Out</button>
+        `;
+    } else {
+        authButtons.innerHTML = `
+            <a class="btn" href="/login">Log In</a>
+            <a class="btn" href="/register" style="margin-top:10px;display:block;">Sign Up</a>
+        `;
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedUser');
+        window.location.href = '/login';
+    }
+</script>
+
+</body>
+</html>
