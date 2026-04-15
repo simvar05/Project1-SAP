@@ -1,11 +1,14 @@
 package main.com.example.SpringPro.Controller;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import main.com.example.SpringPro.Model.Document;
 import main.com.example.SpringPro.Model.DocumentVersion;
 import main.com.example.SpringPro.Model.User;
 import main.com.example.SpringPro.Service.DocumentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +26,7 @@ public class VersionController {
     }
 
     @GetMapping("/versions/allVersions")
+    @ResponseBody
     public List<DocumentVersion> getAllVersions() throws RuntimeException {
 
         return documentService.getDocumentVersions();
@@ -34,20 +38,28 @@ public class VersionController {
     }
 
     @PostMapping("/approve")
-    public String approveVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
-
-
-        System.out.println("DEBUG: Получено ID от Postman: " + request.getUserid());
-        System.out.println("DEBUG: Получен Edit от Postman: " + request.getEdit());
-        documentService.approvedVersion(request.getUserid(),request.getDocument_id(), request.getEdit());
-        return "New Version approved for document: " + request.getDocument_id();
-
+    @ResponseBody
+    public ResponseEntity<String> approveVersion(@RequestBody CombinedDocUserDTO request, HttpSession session) throws RuntimeException {
+        try {
+            User loggedUser=(User) session.getAttribute("user");
+            documentService.approvedVersion(loggedUser.getId(), request.getDocument_id(), request.getEdit());
+            return ResponseEntity.ok("Document approved successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/decline")
-    public String declineVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
-        documentService.declinedVersion(request.getUserid(), request.getEdit(),request.getDocument_id());
-        return "New Version Declined for document: " + request.getDocument_id();
+    @ResponseBody
+    public ResponseEntity<String> declineVersion(@RequestBody CombinedDocUserDTO request, HttpSession session) throws RuntimeException {
+        try {
+            User loggedUser = (User) session.getAttribute("user");
+            documentService.declinedVersion(loggedUser.getId(), request.getEdit(), request.getDocument_id());
+            return ResponseEntity.ok("Document rejected successfully");
+        }
+        catch(Exception e){
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/versionModify")
@@ -66,8 +78,10 @@ public class VersionController {
         return documentService.historyOfDocumentVersion(user_id, div);
 }
 @PostMapping("/versions/done")
-    public DocumentVersion doneVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
-        return documentService.versionDone(request.getUserid(), request.getDocument_id());
+@ResponseBody
+    public DocumentVersion doneVersion(@RequestBody CombinedDocUserDTO request,HttpSession session) throws RuntimeException {
+        User user= (User) session.getAttribute("user");
+        return documentService.versionDone(user.getId(), request.getDocument_id());
 }
 
     @PostMapping("/login")
@@ -79,7 +93,7 @@ public class VersionController {
         User user = documentService.loginUser(email, password);
 
         if (user != null) {
-            if (user.getPassword().equals(password)) {
+            if(user.getPassword().equals(password)) {
                 session.setAttribute("user", user);
                 return "redirect:/documents";
             }

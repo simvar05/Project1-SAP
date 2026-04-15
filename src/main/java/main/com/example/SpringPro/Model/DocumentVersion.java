@@ -1,5 +1,6 @@
 package main.com.example.SpringPro.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import main.com.example.SpringPro.Repo.Status_documentVer;
 import jakarta.persistence.*;
 
@@ -12,7 +13,8 @@ public class DocumentVersion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "document_id")
+    @JoinColumn(name = "document_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Document document;
     private int documentVersion;
     private LocalTime checkedAT;
@@ -42,6 +44,12 @@ public class DocumentVersion {
          this.documentVersion = 1;
     }
 
+    public Long getDocId() {
+        return (document != null) ? document.getId() : null;
+    }
+    public String getDocName() {
+         return (document != null) ? document.getName() : null;
+    }
     public void setDocument(Document document) {
         this.document = document;
     }
