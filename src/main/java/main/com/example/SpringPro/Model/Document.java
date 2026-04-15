@@ -42,7 +42,11 @@ public class Document {
     public void setName(String name) {
         this.name = name;
     }
-    public String getStatus(){
+
+    public List<DocumentVersion> getVersions() {
+        return versions;
+    }
+    public String getStatus() {
 
         if(versions.isEmpty()){
                 return "No versions";

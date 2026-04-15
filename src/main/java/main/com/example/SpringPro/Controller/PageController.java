@@ -5,6 +5,7 @@ import main.com.example.SpringPro.Service.DocumentService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -46,8 +47,15 @@ public class PageController {
         return "create-document";
     }
 
-    @GetMapping("/documents/{id}/view")
-    public String documentDetails() {
+    @GetMapping("/documents/{id}")
+    public String documentDetails(@PathVariable Long id, Model model) {
+
+        Document dco=documentService.getDocumentById(id);
+
+        if(dco==null){
+            return "redirect:/dashboard";
+        }
+        model.addAttribute("document",dco);
         return "document-details";
     }
 }

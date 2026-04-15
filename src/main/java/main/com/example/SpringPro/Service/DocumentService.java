@@ -53,6 +53,7 @@ public class DocumentService {
         }
     }
 
+    @Transactional
     public void approvedVersion(Long id, Long doc_id, String edit) throws RuntimeException {
 
 
@@ -60,10 +61,14 @@ public class DocumentService {
         if(user==null){
             throw new RuntimeException("User not found");
         }
+
+        System.out.println("LOG: User " + user.getUsername() + " has role: " + user.getRoles());
         if (user.getRoles() != Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to approve this version");
         }
         DocumentVersion version = versionRepo.findByDocument_Id(doc_id);
+        System.out.println("2. Намерена версия за документ " + doc_id + ": " + (version != null ? "ДА" : "НЕ"));
+        System.out.println("3. Текущ статус на последната версия: " + version.getStatus());
         if(version == null) {
             throw new RuntimeException("Document not found");
         }
@@ -77,7 +82,13 @@ public class DocumentService {
             version.setEdit(edit);
             version.setName(user.getUsername());
             DocumentService.previousVersions.add(version);
-            versionRepo.save(version);
+            Document doc=documentRepo.findById(doc_id).orElse(null);
+            /*if(doc!=null){
+                doc.getVersions().get(version.getDocumentVersion()).setStatus(Status_documentVer.APPROVED);
+                documentRepo.save(doc);
+            }*/
+            versionRepo.saveAndFlush(version);
+            System.out.println("Статусът е сменен!");
         }
 
     }
@@ -95,7 +106,7 @@ public class DocumentService {
         if (user.getRoles() != Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to decline this version");
         }
-        DocumentVersion version = versionRepo.findById(doc_id).orElse(null);
+        DocumentVersion version = versionRepo.findByDocument_Id(doc_id);
         if (version.getStatus() == Status_documentVer.STILL) {
             int nextDocumentVersion=version.getDocumentVersion()+1;
             version.setDocumentVersion(nextDocumentVersion);
