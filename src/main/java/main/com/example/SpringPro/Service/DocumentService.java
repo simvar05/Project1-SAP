@@ -62,8 +62,8 @@ public class DocumentService {
             throw new RuntimeException("User not found");
         }
 
-        System.out.println("LOG: User " + user.getUsername() + " has role: " + user.getRoles());
-        if (user.getRoles() != Role_User.REVIEWER) {
+        System.out.println("LOG: User " + user.getUsername() + " has role: " + user.getRole());
+        if (user.getRole() != Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to approve this version");
         }
         DocumentVersion version = versionRepo.findByDocument_Id(doc_id);
@@ -102,8 +102,8 @@ public class DocumentService {
         if(user==null){
             throw new RuntimeException("User not found");
         }
-        System.out.println("DEBUG: User " + user.getUsername() + " has role: [" + user.getRoles() + "]");
-        if (user.getRoles() != Role_User.REVIEWER) {
+        System.out.println("DEBUG: User " + user.getUsername() + " has role: [" + user.getRole() + "]");
+        if (user.getRole() != Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to decline this version");
         }
         DocumentVersion version = versionRepo.findByDocument_Id(doc_id);
@@ -133,7 +133,7 @@ public class DocumentService {
         if(version==null){
             throw new RuntimeException("Version not found");
         }
-        if (user.getRoles() != Role_User.REVIEWER) {
+        if (user.getRole() != Role_User.REVIEWER) {
             throw new RuntimeException("You are not allowed to add any comments");
         }
         Comment comment = new Comment(null,version,user,text,LocalTime.now());
@@ -154,7 +154,7 @@ public class DocumentService {
            if(user==null){
                throw new RuntimeException("User not found");
            }
-           if(version.getStatus() != Status_documentVer.APPROVED &&  user.getRoles()!=Role_User.AUTHOR){
+           if(version.getStatus() != Status_documentVer.APPROVED &&  user.getRole()!=Role_User.AUTHOR){
                throw new RuntimeException("Document can be edited by the author and when it's in inspection");
            }
           int nextDocumentVersion=version.getDocumentVersion()+1;
@@ -173,15 +173,18 @@ public class DocumentService {
          System.out.println("DEBUG: Търсим потребител с ID: " + user_id);
          User user = userRepo.findById(user_id).orElse(null);
          System.out.println("DEBUG: Намерен потребител: " + (user != null ? user.getUsername() : "НЕ Е НАМЕРЕН"));
-         System.out.println("DEBUG: Роля в Java обекта: " + (user != null ? user.getRoles() : "NULL"));
+         System.out.println("DEBUG: Роля в Java обекта: " + (user != null ? user.getRole() : "NULL"));
 
          if(user==null){
              throw new RuntimeException("User not found");
          }
-        if(user.getRoles()!= Role_User.AUTHOR){
+        if(user.getRole()!= Role_User.AUTHOR){
             throw new RuntimeException("You are not allowed to create a document");
         }
-        Document dco= new Document(null, text, name);
+        Document dco= new Document();
+        dco.setName(name);
+        dco.setDocumentContent(text);
+        dco.setUser(user);
         return documentRepo.save(dco);
      }
 
@@ -193,7 +196,7 @@ public class DocumentService {
         if(user==null){
             throw new RuntimeException("User not found");
         }
-        if (user.getRoles() != Role_User.AUTHOR) {
+        if (user.getRole() != Role_User.AUTHOR) {
             throw new RuntimeException("Only the author can see the history of the document's version");
         }
         List<DocumentVersion> currentVersion = new ArrayList<>();
@@ -212,7 +215,7 @@ public class DocumentService {
      public List<DocumentVersion> seeAllActiveVersions(Long user_id) throws RuntimeException {
 
         User user=userRepo.findById(user_id).orElse(null);
-        if(user.getRoles()!= Role_User.READER){
+        if(user.getRole()!= Role_User.READER){
             throw new RuntimeException("You are not allowed to use this function!");
         }
         List<DocumentVersion> approveVersions= new ArrayList<>(versionRepo.findByStatus(Status_documentVer.APPROVED));
@@ -235,7 +238,7 @@ public class DocumentService {
          if (user == null) {
              throw new RuntimeException("User not found");
          }
-         if (user.getRoles() != Role_User.REVIEWER) {
+         if (user.getRole() != Role_User.REVIEWER) {
              throw new RuntimeException("You are not allowed to use this function!");
          }
          DocumentVersion dco = versionRepo.findByDocument_Id(doc_id);
@@ -250,6 +253,12 @@ public class DocumentService {
      }
      public User createUser(Long id,Role_User role, String username, String password) throws RuntimeException {
         User user= new User(id,role,username,password);
+        for (User users: userRepo.findAll()){
+            if(users.getPassword().equals(password)){
+               return null;
+            }
+        }
+
         return userRepo.save(user);
      }
 

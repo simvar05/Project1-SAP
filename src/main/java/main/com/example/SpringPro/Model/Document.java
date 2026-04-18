@@ -1,6 +1,7 @@
 package main.com.example.SpringPro.Model;
 
 import jakarta.persistence.*;
+import jakarta.servlet.http.HttpSession;
 import main.com.example.SpringPro.Repo.Status_documentVer;
 
 import javax.print.DocFlavor;
@@ -18,6 +19,9 @@ public class Document {
     private String name;
     @OneToMany(mappedBy = "document")
     private List<DocumentVersion> versions;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Document(Long id, String documentContent, String name) {
         this.id = id;
@@ -49,21 +53,31 @@ public class Document {
     public String getStatus() {
 
         if(versions.isEmpty()){
-                return "No versions";
+                return "DRAFT";
         }
         return versions.get(versions.size()-1).getStatus().toString();
     }
-    public String getUsername(){
-        if(versions.isEmpty()){
-            return "No versions";
+    public String getUsername() {
+
+
+        if(this.user==null){
+            return null;
         }
-        return versions.get(versions.size()-1).getName();
+        return this.user.getUsername();
     }
+public void setUser(User user){
+        this.user=user;
+}
+
+public User getUser() {
+        return user;
+}
+
 
     public String getVersion() {
-        if(versions.isEmpty()){
-            return "No versions";
-        }
+       if(versions.isEmpty()){
+          return null;
+       }
         return String.valueOf(versions.get(versions.size()-1).getDocumentVersion());
     }
 

@@ -42,5 +42,7 @@ public class DocumentDTO {
         return doc_id;
     }
 
+    public DocumentDTO() {}
+
 }
 

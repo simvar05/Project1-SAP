@@ -36,53 +36,103 @@
 
 <script>
     async function loadDocuments() {
-        try {
-            const response = await fetch('/documents/all');
-            const docs = await response.json();
+       try {
 
-            const container = document.getElementById('documentsContainer');
-            container.innerHTML = '';
+    const response = await fetch('/documents/all');
 
-            docs.forEach(doc => {
-                let statusClass = 'badge-rejected';
+    const docs = await response.json();
 
-                if (doc.status === 'APPROVED') {
-                    statusClass = 'badge-approved';
-                } else if (doc.status === 'PENDING') {
-                    statusClass = 'badge-pending';
-                }
 
-                container.innerHTML += `
-                    <div class="document-card">
-                        <div class="doc-header">
-                            <h2>${doc.name}</h2>
-                            <span class="badge ${statusClass}">
-                                ${doc.status ?? 'UNKNOWN'}
-                            </span>
-                        </div>
 
-                        <p class="doc-desc">
-                            ${doc.document_content ?? ''}
-                        </p>
+    const container = document.getElementById('documentsContainer');
 
-                        <div class="doc-info">
-                            <span>📄 ID: <b>${doc.id}</b></span>
-                        </div>
+    container.innerHTML = '';
 
-                        <div class="doc-actions">
-                            <button class="btn btn-primary"
-                                    onclick="window.location.href='/documents/' + doc.id + '/view'">
-                                Open
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
 
-        } catch (err) {
-            console.error(err);
-            alert("Failed to load documents");
+
+    docs.forEach(doc => {
+
+        let statusClass = 'badge-rejected';
+
+
+
+        if (doc.status === 'APPROVED') {
+
+            statusClass = 'badge-approved';
+
+        } else if (doc.status === 'PENDING') {
+
+            statusClass = 'badge-pending';
+
         }
+
+
+
+        container.innerHTML += `
+
+            <div class="document-card">
+
+                <div class="doc-header">
+
+                    <h2>${doc.name || 'No name'}</h2>
+
+                    <span class="badge ${statusClass}">
+
+                        ${doc.status || 'UNKNOWN'}
+
+                    </span>
+
+                </div>
+
+
+
+                <p class="doc-desc">
+
+                    ${doc.document_content ?? ''}
+
+                </p>
+
+
+
+                <div class="doc-info">
+
+                    <span>📄 ID: <b>${doc.id}</b></span>
+
+                </div>
+
+
+
+                <div class="doc-actions">
+
+                    <button class="btn btn-primary"
+
+                            onclick="window.location.href='/documents/' + ${doc.id} + '/view'">
+
+                        Open
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+
+
+        `;
+
+    });
+
+
+
+} catch (err) {
+
+    console.error(err);
+
+    alert("Failed to load documents");
+
+}
     }
 
     loadDocuments();

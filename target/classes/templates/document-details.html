@@ -19,15 +19,15 @@
     <div class="main">
         <div class="card">
             <h1 id="docTitle">Loading...</h1>
-            <p th:text="${document.description}"></p>
+            <p th:text="${document?.documentContent ?: 'No content' }"></p>
 
             <div style="margin:20px 0;">
                 <span th:class="${document.status == 'APPROVED'} ? 'badge badge-approved' : (${document.status == 'PENDING'} ? 'badge badge-pending' : 'badge badge-rejected')"
                       th:text="${document.status}"></span>
             </div>
 
-            <p><strong>Current Version:</strong> <span th:text="${document.currentVersion}"></span></p>
-            <p><strong>Owner:</strong> <span th:text="${document.owner.username}"></span></p>
+            <p><strong>Current Version:</strong> <span th:text="${document.version}"></span></p>
+            <p><strong>Owner:</strong> <span th:text="${document.username}"></span></p>
 
             <div class="card" style="margin-top:30px;">
                 <h2>Comments</h2>
@@ -41,6 +41,7 @@
                 <button class="btn btn-primary">Upload New Version</button>
                 <button class="btn btn-primary" onclick="approveDoc()">Approve</button>
                 <button class="btn btn-danger" onclick="rejectDoc()">Reject</button>
+                <button class="btn btn-done" onclick="versionDone()">Done</button>
             </div>
         </div>
 
@@ -50,6 +51,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Doc_Name</th>
                         <th>Version</th>
                         <th>Date</th>
                         <th>Uploaded By</th>
@@ -65,7 +67,36 @@
     const parts = window.location.pathname.split('/');
     const docId = parts[2];
 
-    async function loadDocument() {
+
+        async function loadVersions() {
+            try {
+                const response = await fetch('/versions/allVersions');
+                const versions = await response.json();
+
+                const table = document.getElementById('versionsTable');
+                table.innerHTML = '';
+
+                versions.forEach(v => {
+                console.log("Версия данни:", v);
+
+                        table.innerHTML += `
+                            <tr>
+                                <td>${v.docName ?? '-'}</td>
+                                <td>${v.documentVersion ?? '-'}</td>
+                                <td>${v.checkedAT ?? '-'}</td>
+                                <td>${v.name ?? '-'}</td>
+
+                            </tr>
+                        `;
+
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert("Failed to load versions");
+            }
+        }
+        async function loadDocument() {
         try {
             const response = await fetch('/documents/' + docId);
             const doc = await response.json();
@@ -78,69 +109,62 @@
         }
     }
 
-    async function loadVersions() {
-        try {
-            const response = await fetch('/versions/allVersions');
-            const versions = await response.json();
+   async function approveDoc() {
+    try {
+        const response = await fetch('/approve', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                document_id: Number(docId),
+                edit: 'APPROVED'
+            })
+        });
 
-            const table = document.getElementById('versionsTable');
-            table.innerHTML = '';
-
-            versions.forEach(v => {
-                if (v.document && v.document.id == docId) {
-                    table.innerHTML += `
-                        <tr>
-                            <td>${v.versionNumber ?? '-'}</td>
-                            <td>${v.createdAt ?? '-'}</td>
-                            <td>${v.user?.username ?? '-'}</td>
-                        </tr>
-                    `;
-                }
-            });
-
-        } catch (err) {
-            console.error(err);
-            alert("Failed to load versions");
+        if (response.ok) {
+            alert('Document approved!');
+            window.location.reload();
+            const badge = document.querySelector('.badge');
+            if (badge) {
+                badge.innerText = 'APPROVED';
+                badge.className = 'badge badge-approved';
+            }
+        } else {
+            alert('Грешка при одобрение: ' + await response.text());
         }
+    } catch (err) {
+        console.error(err);
+        alert('Server error');
     }
-
-    async function approveDoc() {
-        try {
-            await fetch('/versions/approve/' + docId, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    userid: 1,
-                    document_id: Number(docId),
-                    edit: 'approved'
-                })
-            });
-
-            alert('Document approved');
-
-        } catch (err) {
-            console.error(err);
-            alert('Approve failed');
-        }
-    }
+}
 
     async function rejectDoc() {
         try {
-            await fetch('/versions/decline/' + docId, {
+           const response= await fetch('/decline', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    userid: 1,
                     document_id: Number(docId),
                     edit: 'rejected'
                 })
             });
 
-            alert('Document rejected');
+ if (response.ok) {
+            alert('Document rejected!');
+            window.location.reload();
+            const badge = document.querySelector('.badge');
+            if (badge) {
+                badge.innerText = 'REJECTED';
+                badge.className = 'badge badge-rejected';
+            }
+        } else {
+            alert('Грешка при одобрение: ' + await response.text());
+        }
+
+
 
         } catch (err) {
             console.error(err);
@@ -148,7 +172,37 @@
         }
     }
 
-    loadDocument();
+    async function versionDone(){
+
+    try{
+    const response= await fetch('/versions/done',{
+           method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    document_id: Number(docId)
+    })
+    });
+
+        if (response.ok) {
+            alert('Document is finished!');
+            window.location.reload();
+            const badge = document.querySelector('.badge');
+            if (badge) {
+                badge.innerText = 'STILL';
+                badge.className = 'badge badge-still';
+            }
+        } else {
+            alert('Грешка при одобрение: ' + await response.text());
+        }
+    }
+    catch(err){
+    console.error(err)
+    alert('Finished failed'); }
+    }
+
+
     loadVersions();
 
 

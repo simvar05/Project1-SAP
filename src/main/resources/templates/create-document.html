@@ -32,7 +32,7 @@
 
                 <div class="form-group">
                     <label>Document Title</label>
-                    <input type="text" name="title" placeholder="Enter document title..." required>
+                    <input type="text" id="title" placeholder="Enter document title..." required>
                 </div>
 
                 <div class="form-group">
@@ -42,7 +42,7 @@
 
                 <div class="form-group">
                     <label>Initial Content</label>
-                    <textarea name="content" class="large-textarea"
+                    <textarea id="content" class="large-textarea"
                               placeholder="Write the document content here..."></textarea>
                 </div>
 
@@ -101,12 +101,14 @@
                 body: JSON.stringify(data)
             });
 
-            if (!response.ok) {
-                throw new Error("Failed to create document");
-            }
-
+            if (response.ok) {
             alert("Document created successfully!");
             window.location.href = "/documents";
+    }
+
+else{
+throw new Error("Failed to create document");
+}
 
         } catch (err) {
             alert(err.message);

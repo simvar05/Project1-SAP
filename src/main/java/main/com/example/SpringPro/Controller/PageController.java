@@ -1,11 +1,15 @@
 package main.com.example.SpringPro.Controller;
 
 import main.com.example.SpringPro.Model.Document;
+import main.com.example.SpringPro.Model.User;
 import main.com.example.SpringPro.Service.DocumentService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import main.com.example.SpringPro.Repo.*;
 
 import java.util.List;
 
@@ -22,6 +26,7 @@ public class PageController {
     public String login() {
         return "login";
     }
+
 
     @GetMapping("/register")
     public String register() {
@@ -54,7 +59,6 @@ public class PageController {
 
     @GetMapping("/documents/{id}")
     public String documentDetails(@PathVariable Long id, Model model) {
-
         Document dco=documentService.getDocumentById(id);
 
         if(dco==null){
@@ -63,4 +67,8 @@ public class PageController {
         model.addAttribute("document",dco);
         return "document-details";
     }
+
+
+
+
 }

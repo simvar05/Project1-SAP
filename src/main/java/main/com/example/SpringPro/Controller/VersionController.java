@@ -6,6 +6,7 @@ import main.com.example.SpringPro.Model.Document;
 import main.com.example.SpringPro.Model.DocumentVersion;
 import main.com.example.SpringPro.Model.User;
 import main.com.example.SpringPro.Service.DocumentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class VersionController {
@@ -85,22 +87,24 @@ public class VersionController {
 }
 
     @PostMapping("/login")
-    public String login(@RequestParam String email,
-                        @RequestParam String password,
+    @ResponseBody
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials,
                         HttpSession session,
                         Model model) {
 
-        User user = documentService.loginUser(email, password);
+        String username = credentials.get("username");
+        String password = credentials.get("password");
+        User user = documentService.loginUser(username, password);
 
         if (user != null) {
             if(user.getPassword().equals(password)) {
                 session.setAttribute("user", user);
-                return "redirect:/documents";
+                return ResponseEntity.ok(user);
             }
         }
 
         model.addAttribute("error", "Грешен имейл или парола!");
-        return "login";
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 
 }

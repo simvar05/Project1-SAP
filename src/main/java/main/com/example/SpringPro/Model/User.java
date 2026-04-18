@@ -47,7 +47,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-    public Role_User getRoles() {return role; }
+    public Role_User getRole() {return role; }
     public User() {}
 
 
