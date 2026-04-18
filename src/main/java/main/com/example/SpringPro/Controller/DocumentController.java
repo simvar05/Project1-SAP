@@ -36,7 +36,7 @@ public class DocumentController {
         User loggedUser = (User) session.getAttribute("user");
 
         if (loggedUser == null) {
-            ResponseEntity.status(401).body("You are not logged in");
+            return ResponseEntity.status(401).body("You are not logged in");
         }
 
         try {
@@ -46,11 +46,12 @@ public class DocumentController {
                     docDto.getDocument_content(),
                     docDto.getName()
             );
-            return ResponseEntity.ok(newDoc);
+            return ResponseEntity.ok("Document created successfully");
         }
 
         catch(Exception e) {
-            return ResponseEntity.status(404).body("Message: "+e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(e.getMessage());
         }
 
 

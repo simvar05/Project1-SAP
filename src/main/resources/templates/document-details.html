@@ -18,7 +18,7 @@
 
     <div class="main">
         <div class="card">
-            <h1 id="docTitle">Loading...</h1>
+            <h1 id="docTitle" th:text="${document.name}">Document</h1>
             <p th:text="${document?.documentContent ?: 'No content' }"></p>
 
             <div style="margin:20px 0;">
@@ -38,10 +38,10 @@
             </div>
 
             <div style="display:flex; gap:10px; margin-top:25px;">
-                <button class="btn btn-primary">Upload New Version</button>
-                <button class="btn btn-primary" onclick="approveDoc()">Approve</button>
-                <button class="btn btn-danger" onclick="rejectDoc()">Reject</button>
-                <button class="btn btn-done" onclick="versionDone()">Done</button>
+                <button type="button" class="btn btn-primary" onclick="uploadVersion()">Upload New Version</button>
+                <button type="button" class="btn btn-primary" onclick="approveDoc()">Approve</button>
+                <button type="button" class="btn btn-danger" onclick="rejectDoc()">Reject</button>
+                <button type="button" class="btn btn-done" onclick="versionDone()">Done</button>
             </div>
         </div>
 
@@ -81,7 +81,7 @@
 
                         table.innerHTML += `
                             <tr>
-                                <td>${v.docName ?? '-'}</td>
+                                <td>${document.getElementById('docTitle').innerText}</td>
                                 <td>${v.documentVersion ?? '-'}</td>
                                 <td>${v.checkedAT ?? '-'}</td>
                                 <td>${v.name ?? '-'}</td>
@@ -109,7 +109,39 @@
         }
     }
 
-   async function approveDoc() {
+    async function uploadVersion() {
+    const newContent = prompt('Enter the new version content:');
+
+    if (!newContent) return;
+
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+
+    try {
+        const response = await fetch('/versions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userid: loggedUser.id,
+                document_id: Number(docId),
+                document_content: newContent
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        alert('New version uploaded');
+        loadVersions();
+
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+    async function approveDoc() {
     try {
         const response = await fetch('/approve', {
             method: 'POST',
@@ -204,7 +236,8 @@
 
 
     loadVersions();
-
+    loadComments(docId);
+    renderCommentForm(docId);
 
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
     const authButtons = document.getElementById('authButtons');

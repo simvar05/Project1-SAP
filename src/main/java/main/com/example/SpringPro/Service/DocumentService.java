@@ -178,14 +178,26 @@ public class DocumentService {
          if(user==null){
              throw new RuntimeException("User not found");
          }
-        if(user.getRole()!= Role_User.AUTHOR){
-            throw new RuntimeException("You are not allowed to create a document");
-        }
-        Document dco= new Document();
-        dco.setName(name);
-        dco.setDocumentContent(text);
-        dco.setUser(user);
-        return documentRepo.save(dco);
+         if(user.getRole()!= Role_User.AUTHOR){
+             throw new RuntimeException("You are not allowed to create a document");
+         }
+         Document dco= new Document();
+         dco.setName(name);
+         dco.setDocumentContent(text);
+         dco.setUser(user);
+         Document saved = documentRepo.save(dco);
+
+         DocumentVersion version = new DocumentVersion(
+                 text,
+                 user.getUsername(),
+                 1L,
+                 saved,
+                 LocalTime.now(),
+                 Status_documentVer.DRAFT
+         );
+
+         versionRepo.save(version);
+         return saved;
      }
 
 
@@ -250,6 +262,7 @@ public class DocumentService {
          dco.setName(dco.getName());
          dco.setCheckAT(LocalTime.now());
          return versionRepo.save(dco);
+
      }
      public User createUser(Long id,Role_User role, String username, String password) throws RuntimeException {
         User user= new User(id,role,username,password);
