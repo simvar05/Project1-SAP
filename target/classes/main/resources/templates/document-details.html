@@ -38,7 +38,7 @@
             </div>
 
             <div style="display:flex; gap:10px; margin-top:25px;">
-                <button class="btn btn-primary">Upload New Version</button>
+                <button class="btn btn-primary" onclick="">Upload New Version</button>
                 <button class="btn btn-primary" onclick="approveDoc()">Approve</button>
                 <button class="btn btn-danger" onclick="rejectDoc()">Reject</button>
                 <button class="btn btn-done" onclick="versionDone()">Done</button>
@@ -230,7 +230,7 @@
 
 
     async function loadComments(documentId) {
-    const response = await fetch(`/documents/${documentId}/comments`);
+    const response = await fetch(`/comments/${documentId}`);
 
     if (!response.ok) return;
 
@@ -268,13 +268,13 @@ function renderCommentForm(documentId) {
 async function submitComment(documentId) {
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
 
-    const response = await fetch(`/documents/${documentId}/comments`, {
+    const response = await fetch(`comments/${documentId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            userId: loggedUser.id,
+            userid: loggedUser.id,
             comment: document.getElementById('commentInput').value
         })
     });
@@ -287,6 +287,10 @@ async function submitComment(documentId) {
     document.getElementById('commentInput').value = '';
     loadComments(documentId);
 }
+
+    loadComments(docId);
+renderCommentForm(docId);
+
 </script>
 
 </body>

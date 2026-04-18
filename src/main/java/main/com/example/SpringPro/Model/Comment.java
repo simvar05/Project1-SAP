@@ -45,6 +45,10 @@ public class Comment {
    public User getUser() {
         return user;
    }
+   public Long getUserId(){
+        return user.getId();
+   }
+
     public String getComment() {
         return comment;
     }
