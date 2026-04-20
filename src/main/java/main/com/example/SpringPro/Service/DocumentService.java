@@ -38,19 +38,26 @@ public class DocumentService {
 
     public DocumentVersion createVersion(Long doc_id, String content,Long id) throws RuntimeException {
         Document dco = documentRepo.findById(doc_id).orElse(null);
+        System.out.println("Записвам версия за документ: " + (dco != null ? dco.getName() : "НЕ Е НАМЕРЕН"));
         DocumentVersion dcv= versionRepo.findTopByOrderByIdDesc();
         User user = userRepo.findById(id).orElse(null);
         if(user==null){
             throw new RuntimeException("User not found");
         }
-        Long newVersionNumber = (dcv != null) ? dcv.getId() + 1 : 1;
         if (dco == null) {
             throw new RuntimeException("Document not found");
-        } else {
-            DocumentVersion version = new DocumentVersion(content, user.getUsername(), newVersionNumber , dco, LocalTime.now(), Status_documentVer.STILL);
+        }
+
+
+            if(versionRepo.existsByDocument(dco)) {
+                throw new RuntimeException("The doc has already had version!");
+            }
+
+
+            DocumentVersion version = new DocumentVersion(content, user.getUsername(),null, dco, LocalTime.now(), Status_documentVer.DRAFT);
             DocumentService.previousVersions.add(version);
             return versionRepo.save(version);
-        }
+
     }
 
     @Transactional
@@ -72,7 +79,7 @@ public class DocumentService {
         if(version == null) {
             throw new RuntimeException("Document not found");
         }
-        if (version.getStatus() != Status_documentVer.STILL) {
+        if (version.getStatus() != Status_documentVer.DRAFT) {
             throw new RuntimeException("Document is not ready to be approved yet");
         } else {
             int nextDocumentVersion=version.getDocumentVersion()+1;
@@ -107,7 +114,7 @@ public class DocumentService {
             throw new RuntimeException("You are not allowed to decline this version");
         }
         DocumentVersion version = versionRepo.findByDocument_Id(doc_id);
-        if (version.getStatus() == Status_documentVer.STILL) {
+        if (version.getStatus() == Status_documentVer.DRAFT) {
             int nextDocumentVersion=version.getDocumentVersion()+1;
             version.setDocumentVersion(nextDocumentVersion);
             version.setEdit(edit);
@@ -122,7 +129,8 @@ public class DocumentService {
 
     }
 
-    public Comment addComment(Long id,Long user_id, String text, Long version_id) throws RuntimeException {
+    @Transactional
+    public Comment addComment(Long user_id, String text, Long version_id) throws RuntimeException {
         User user=userRepo.findById(user_id).orElse(null);
         if(user==null){
 
@@ -141,6 +149,16 @@ public class DocumentService {
 
     }
 
+        public List<Comment> findAllComments(Long doc_id) throws RuntimeException {
+
+
+        Document doc =documentRepo.findById(doc_id).orElse(null);
+            if(doc==null){
+                throw new RuntimeException("Version not found");
+            }
+           return doc.getComments();
+
+        }
 
 
 
@@ -242,10 +260,11 @@ public class DocumentService {
              throw new RuntimeException("You are not allowed to use this function!");
          }
          DocumentVersion dco = versionRepo.findByDocument_Id(doc_id);
-         if (dco.getStatus() == Status_documentVer.STILL) {
+         if (dco.getStatus() == Status_documentVer.DRAFT) {
              throw new RuntimeException("The document is in \"Still\" mode ");
          }
-         dco.setStatus(Status_documentVer.STILL);
+         dco.setStatus(Status_documentVer.DRAFT);
+         dco.setDocumentVersion(dco.getDocumentVersion()+1);
          dco.setEdit(null);
          dco.setName(dco.getName());
          dco.setCheckAT(LocalTime.now());

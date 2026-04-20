@@ -3,12 +3,12 @@ package main.com.example.SpringPro.Controller;
 public class CommentDTO {
     private Long userid;
     private Long versionid;
-    private String text;
+    private String comment;
 
     public CommentDTO(Long userid, Long versionid, String text) {
         this.userid = userid;
         this.versionid = versionid;
-        this.text = text;
+        this.comment = comment;
     }
     public Long getUserid() {
         return userid;
@@ -22,11 +22,12 @@ public class CommentDTO {
     public void setVersionid(Long versionid) {
         this.versionid = versionid;
     }
-    public String getText() {
-        return text;
+    public String getComment() {
+        return comment;
     }
-    public void setText(String text) {
-        this.text = text;
+    public void setComment(String comment) {
+        this.comment= comment;
     }
 
+    public CommentDTO() {}
 }

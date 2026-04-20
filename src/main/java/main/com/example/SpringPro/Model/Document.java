@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import main.com.example.SpringPro.Repo.Status_documentVer;
 
 import javax.print.DocFlavor;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,11 +23,14 @@ public class Document {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    @OneToMany(mappedBy = "document")
+   private List<Comment> comments;
 
     public Document(Long id, String documentContent, String name) {
         this.id = id;
         this.documentContent = documentContent;
         this.name=name;
+        this.versions = new ArrayList<>();
     }
     public Long getId() {
         return id;
@@ -81,6 +85,9 @@ public User getUser() {
         return String.valueOf(versions.get(versions.size()-1).getDocumentVersion());
     }
 
+    public List<Comment> getComments() {
+        return comments;
+    }
 
     public Document() {
 

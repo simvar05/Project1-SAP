@@ -1,5 +1,6 @@
 package main.com.example.SpringPro.Repo;
 
+import main.com.example.SpringPro.Model.Document;
 import main.com.example.SpringPro.Model.DocumentVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,6 @@ public interface VersionRepo extends JpaRepository<DocumentVersion,Long> {
     DocumentVersion findByDocumentVersion(Long documentVersion);
     List<DocumentVersion> findByStatus(Status_documentVer status);
     DocumentVersion findTopByOrderByIdDesc();
-
+    boolean existsByDocument(Document document);
 
 }

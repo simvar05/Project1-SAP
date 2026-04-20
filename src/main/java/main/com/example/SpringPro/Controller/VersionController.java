@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.web.servlet.function.ServerResponse.status;
+
 @Controller
 public class VersionController {
 
@@ -27,16 +29,28 @@ public class VersionController {
         this.documentService = documentService;
     }
 
-    @GetMapping("/versions/allVersions")
+    @GetMapping("/allVersions")
     @ResponseBody
     public List<DocumentVersion> getAllVersions() throws RuntimeException {
 
         return documentService.getDocumentVersions();
     }
 
-    @PostMapping("/versions")
-    public DocumentVersion createVersion(@RequestBody CombinedDocUserDTO request) throws RuntimeException {
-        return documentService.createVersion(request.getDocument_id(), request.getDocument_content(), request.getUserid());
+    @PostMapping("/createVersion")
+    @ResponseBody
+    public ResponseEntity<?> createVersion(@RequestBody CombinedDocUserDTO request,HttpSession session) throws RuntimeException {
+        User loggedUser= (User) session.getAttribute("user");
+        if(loggedUser==null){
+            return  ResponseEntity.status(401).body("You are not logged in");
+        }
+        try {
+            documentService.createVersion(request.getDocument_id(), request.getEdit(), loggedUser.getId());
+
+           return ResponseEntity.ok("Version created");
+        }
+        catch (Exception e){
+            return ResponseEntity.status(401).body("Error occurred");
+        }
     }
 
     @PostMapping("/approve")

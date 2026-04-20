@@ -18,7 +18,7 @@
 
     <div class="main">
         <div class="card">
-            <h1 id="docTitle">Loading...</h1>
+            <h1 id="docTitle" th:text="${document.name}">Document</h1>
             <p th:text="${document?.documentContent ?: 'No content' }"></p>
 
             <div style="margin:20px 0;">
@@ -38,10 +38,10 @@
             </div>
 
             <div style="display:flex; gap:10px; margin-top:25px;">
-                <button class="btn btn-primary" onclick="">Upload New Version</button>
-                <button class="btn btn-primary" onclick="approveDoc()">Approve</button>
-                <button class="btn btn-danger" onclick="rejectDoc()">Reject</button>
-                <button class="btn btn-done" onclick="versionDone()">Done</button>
+                <button type="button" class="btn btn-primary" onclick="uploadVersion()">Upload New Version</button>
+                <button type="button" class="btn btn-primary" onclick="approveDoc()">Approve</button>
+                <button type="button" class="btn btn-danger" onclick="rejectDoc()">Reject</button>
+                <button type="button" class="btn btn-done" onclick="versionDone()">Done</button>
             </div>
         </div>
 
@@ -50,12 +50,12 @@
 
             <table>
                 <thead>
-                    <tr>
-                        <th>Doc_Name</th>
-                        <th>Version</th>
-                        <th>Date</th>
-                        <th>Uploaded By</th>
-                    </tr>
+                <tr>
+                    <th>Doc_Name</th>
+                    <th>Version</th>
+                    <th>Date</th>
+                    <th>Uploaded By</th>
+                </tr>
                 </thead>
                 <tbody id="versionsTable"></tbody>
             </table>
@@ -70,7 +70,7 @@
 
         async function loadVersions() {
             try {
-                const response = await fetch('/versions/allVersions');
+                const response = await fetch('/allVersions');
                 const versions = await response.json();
 
                 const table = document.getElementById('versionsTable');
@@ -81,12 +81,12 @@
 
                         table.innerHTML += `
                             <tr>
-                                <td>${v.docName ?? '-'}</td>
+                                <td>${v.docName ??  '-'}</td>
                                 <td>${v.documentVersion ?? '-'}</td>
                                 <td>${v.checkedAT ?? '-'}</td>
                                 <td>${v.name ?? '-'}</td>
 
-                            </tr>
+                                    </tr>
                         `;
 
                 });
@@ -109,7 +109,41 @@
         }
     }
 
-   async function approveDoc() {
+    async function uploadVersion() {
+    const newContent = prompt('Enter the new version content:');
+
+    if (!newContent) return;
+
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+
+    try {
+        const response = await fetch('/createVersion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                document_id: Number(docId),
+                edit: newContent,
+                userid: loggedUser.id,
+
+
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        alert('New version uploaded');
+        loadVersions();
+
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+    async function approveDoc() {
     try {
         const response = await fetch('/approve', {
             method: 'POST',
@@ -204,7 +238,8 @@
 
 
     loadVersions();
-
+    loadComments(docId);
+    renderCommentForm(docId);
 
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
     const authButtons = document.getElementById('authButtons');
@@ -230,7 +265,7 @@
 
 
     async function loadComments(documentId) {
-    const response = await fetch(`/comments/${documentId}`);
+    const response = await fetch(`/documents/${documentId}/comments`);
 
     if (!response.ok) return;
 
@@ -268,13 +303,13 @@ function renderCommentForm(documentId) {
 async function submitComment(documentId) {
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
 
-    const response = await fetch(`comments/${documentId}`, {
+    const response = await fetch(`/documents/${documentId}/comments`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            userid: loggedUser.id,
+            userId: loggedUser.id,
             comment: document.getElementById('commentInput').value
         })
     });
@@ -287,10 +322,6 @@ async function submitComment(documentId) {
     document.getElementById('commentInput').value = '';
     loadComments(documentId);
 }
-
-    loadComments(docId);
-renderCommentForm(docId);
-
 </script>
 
 </body>

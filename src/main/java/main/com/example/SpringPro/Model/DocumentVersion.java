@@ -5,6 +5,8 @@ import main.com.example.SpringPro.Repo.Status_documentVer;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class DocumentVersion {
@@ -13,7 +15,7 @@ public class DocumentVersion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "document_id", insertable = false, updatable = false)
+    @JoinColumn(name = "document_id", nullable = false)
     @JsonIgnore
     private Document document;
     private int documentVersion;
@@ -22,17 +24,23 @@ public class DocumentVersion {
     Status_documentVer status;
     private String name;
     private String edit;
+    @OneToMany(mappedBy = "version")
+    private List<Comment> comments;
 
      public DocumentVersion() {}
 
-    public DocumentVersion(String edit,String name, Long id, Document document, LocalTime checkedAT, Status_documentVer status,int documentVersion) {
+    public DocumentVersion(String edit,String name, Document document, LocalTime checkedAT, Status_documentVer status,int documentVersion) {
+
+
+
 
         this.name = name;
-            this.id = id;
             this.document = document;
             this.checkedAT = checkedAT;
             this.status = status;
             this.documentVersion = documentVersion;
+            this.edit=edit;
+
     }
 
     public DocumentVersion(String edit,String name, Long id, Document document, LocalTime checkedAT, Status_documentVer status) {

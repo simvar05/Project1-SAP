@@ -11,7 +11,11 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
+    @JoinColumn(name="version_id")
     private DocumentVersion version;
+    @ManyToOne
+    @JoinColumn(name = "document_id") // Това ще създаде колона document_id в базата
+    private Document document;
     @ManyToOne
     private User user;
     private String comment;
