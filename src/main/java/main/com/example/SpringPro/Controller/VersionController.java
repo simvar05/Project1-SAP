@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,11 +33,29 @@ public class VersionController {
 
     @GetMapping("/allVersions")
     @ResponseBody
-    public List<DocumentVersion> getAllVersions() throws RuntimeException {
+    public ResponseEntity<?> getAllVersions() {
+        try {
+            List<Map<String, Object>> result = new ArrayList<>();
 
-        return documentService.getDocumentVersions();
+            for (DocumentVersion v : documentService.getDocumentVersions()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("docName", v.getDocument() != null ? v.getDocument().getName() : "Unknown");
+                row.put("documentVersion", v.getDocumentVersion());
+                row.put("checkedAT", v.getCheckedAT());
+                row.put("name", v.getName());
+
+                result.add(row);
+            }
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 
+<<<<<<< HEAD
     @PostMapping("/createVersion")
     @ResponseBody
     public ResponseEntity<?> createVersion(@RequestBody CombinedDocUserDTO request,HttpSession session) throws RuntimeException {
@@ -50,6 +70,22 @@ public class VersionController {
         }
         catch (Exception e){
             return ResponseEntity.status(401).body("Error occurred");
+=======
+    @PostMapping("/versions")
+    @ResponseBody
+    public ResponseEntity<?> createVersion(@RequestBody CombinedDocUserDTO request) {
+        try {
+            documentService.createVersion(
+                    request.getDocument_id(),
+                    request.getDocument_content(),
+                    request.getUserid()
+            );
+
+            return ResponseEntity.ok("Version created successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(e.getMessage());
+>>>>>>> 39ab780cabdb58442c8da91f4ca91fac1b62cd4b
         }
     }
 
@@ -93,12 +129,20 @@ public class VersionController {
 
         return documentService.historyOfDocumentVersion(user_id, div);
 }
-@PostMapping("/versions/done")
-@ResponseBody
-    public DocumentVersion doneVersion(@RequestBody CombinedDocUserDTO request,HttpSession session) throws RuntimeException {
-        User user= (User) session.getAttribute("user");
-        return documentService.versionDone(user.getId(), request.getDocument_id());
-}
+    @PostMapping("/versions/done")
+    @ResponseBody
+    public ResponseEntity<?> doneVersion(@RequestBody CombinedDocUserDTO request, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+
+            documentService.versionDone(user.getId(), request.getDocument_id());
+
+            return ResponseEntity.ok("Document marked as done");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
 
     @PostMapping("/login")
     @ResponseBody

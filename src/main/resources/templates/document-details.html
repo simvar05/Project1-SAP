@@ -81,7 +81,11 @@
 
                         table.innerHTML += `
                             <tr>
+<<<<<<< HEAD
                                 <td>${v.docName ??  '-'}</td>
+=======
+                                <td>${document.getElementById('docTitle').innerText}</td>
+>>>>>>> 39ab780cabdb58442c8da91f4ca91fac1b62cd4b
                                 <td>${v.documentVersion ?? '-'}</td>
                                 <td>${v.checkedAT ?? '-'}</td>
                                 <td>${v.name ?? '-'}</td>
@@ -117,17 +121,27 @@
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
 
     try {
+<<<<<<< HEAD
         const response = await fetch('/createVersion', {
+=======
+        const response = await fetch('/versions', {
+>>>>>>> 39ab780cabdb58442c8da91f4ca91fac1b62cd4b
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+<<<<<<< HEAD
                 document_id: Number(docId),
                 edit: newContent,
                 userid: loggedUser.id,
 
 
+=======
+                userid: loggedUser.id,
+                document_id: Number(docId),
+                document_content: newContent
+>>>>>>> 39ab780cabdb58442c8da91f4ca91fac1b62cd4b
             })
         });
 

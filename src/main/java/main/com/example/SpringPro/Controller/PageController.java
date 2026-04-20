@@ -57,7 +57,7 @@ public class PageController {
         return "create-document";
     }
 
-    @GetMapping("/documents/{id}")
+    @GetMapping("/documents/{id}/view")
     public String documentDetails(@PathVariable Long id, Model model) {
         Document dco=documentService.getDocumentById(id);
 
